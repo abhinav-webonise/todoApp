@@ -18,16 +18,17 @@ if (Meteor.isServer) {
 Meteor.methods({
   'tasks.insert'(text){
     check(text, String);
-    if(! this.userId) {
+    if(!this.userId) {
       throw new Meteor.Error('not-authorised');
     }
-
-    Tasks.insert({
-      text,
-      createdAt: new Date(),
-      owner: this.userId,
-      username: Meteor.users.findOne(this.userId).username
-    });
+    if(text){
+      Tasks.insert({
+        text,
+        createdAt: new Date(),
+        owner: this.userId,
+        username: Meteor.users.findOne(this.userId).username
+      });
+    }
   },
 
   'tasks.setChecked'(taskId, setChecked) {
@@ -35,6 +36,7 @@ Meteor.methods({
     check(setChecked, Boolean);
 
     Tasks.update(taskId, {$set: {checked: setChecked} });
+    Tasks.update(taskId, {$set: {completedAt: new Date()} });
   },
 
   'tasks.remove'(taskId){
